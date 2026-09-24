@@ -7,7 +7,32 @@ from typing import Any, List, Optional
 from pydantic import BaseModel, Field
 
 
-class LineName(str, Enum):
+class OpenEnum(str, Enum):
+    """An enum that accepts values it doesn't know yet.
+
+    The Railworks API only makes additive changes within /v1, and its enum
+    lists are open: a new effect kind or change-event type may appear without
+    a new API version. An unknown value parses as a pseudo-member named
+    ``UNKNOWN`` that keeps the raw value, still compares equal to the string,
+    and reports ``is_known`` as False, so a new value never breaks a response.
+    """
+
+    @classmethod
+    def _missing_(cls, value: object) -> "OpenEnum | None":
+        if not isinstance(value, str):
+            return None
+        member = str.__new__(cls, value)
+        member._name_ = "UNKNOWN"
+        member._value_ = value
+        return member
+
+    @property
+    def is_known(self) -> bool:
+        """False for a value this version of pyrailworks doesn't know yet."""
+        return self._name_ != "UNKNOWN"
+
+
+class LineName(OpenEnum):
     DART = "dart"
     NORTHERN_COMMUTERS = "northern-commuters"
     BELFAST = "belfast"
@@ -23,13 +48,13 @@ class LineName(str, Enum):
     BALLYBROPHY = "ballybrophy"
 
 
-class NoticeStatus(str, Enum):
+class NoticeStatus(OpenEnum):
     ACTIVE = "active"
     EXPIRED = "expired"
     WITHDRAWN = "withdrawn"
 
 
-class EffectKind(str, Enum):
+class EffectKind(OpenEnum):
     NO_SERVICE = "no_service"
     STATION_CLOSED = "station_closed"
     BUS_REPLACEMENT = "bus_replacement"
@@ -37,7 +62,7 @@ class EffectKind(str, Enum):
     OTHER = "other"
 
 
-class AlterationChange(str, Enum):
+class AlterationChange(OpenEnum):
     CANCELLED = "cancelled"
     BUS_REPLACED = "bus_replaced"
     TERMINATES_SHORT = "terminates_short"
@@ -47,25 +72,25 @@ class AlterationChange(str, Enum):
     OTHER = "other"
 
 
-class ExtractionStatus(str, Enum):
+class ExtractionStatus(OpenEnum):
     DISABLED = "disabled"
     PENDING = "pending"
     DONE = "done"
     FAILED = "failed"
 
 
-class DateInferenceMethod(str, Enum):
+class DateInferenceMethod(OpenEnum):
     WEEKDAY = "weekday"
     NEXT_OCCURRENCE = "next_occurrence"
 
 
-class SegmentExpansion(str, Enum):
+class SegmentExpansion(OpenEnum):
     OK = "ok"
     AMBIGUOUS = "ambiguous"
     UNRESOLVED = "unresolved"
 
 
-class ChangeEventType(str, Enum):
+class ChangeEventType(OpenEnum):
     CREATED = "created"
     REVISED = "revised"
     EXPIRED = "expired"

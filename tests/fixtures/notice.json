@@ -1,0 +1,150 @@
+{
+ "notice": {
+  "id": "ae7b08551ff1",
+  "service_group": "Ballybrophy Services",
+  "status": "active",
+  "heading": "Friday 25th and Saturday 26th September",
+  "days": [
+   "2026-09-25",
+   "2026-09-26"
+  ],
+  "starts_on": "2026-09-25",
+  "ends_on": "2026-09-26",
+  "until": "2026-09-27",
+  "date_inference": {
+   "method": "weekday",
+   "corrections": [],
+   "conflicts": [],
+   "prose_missing": [],
+   "prose_extra": []
+  },
+  "first_seen": "2026-09-23T14:31:31.146Z",
+  "last_seen": "2026-09-23T14:53:44.417Z",
+  "revision_count": 1,
+  "works_segments": [
+   {
+    "clause": "Dublin Heuston – Hazelhatch",
+    "from": "Dublin Heuston",
+    "to": "Hazelhatch",
+    "from_codes": [
+     "HSTON"
+    ],
+    "to_codes": [
+     "HZLCH"
+    ],
+    "stations": [
+     "HSTON",
+     "CHORC",
+     "CLDKN",
+     "KISHO",
+     "ADMTN",
+     "HZLCH"
+    ],
+    "expansion": "ok",
+    "quote": "Please note that due to Engineering Works between Dublin Heuston to Hazelhatch and between Ballybrophy to Thurles on Friday 25th and Saturday 26th September, the following service alterations and amendments will take place:"
+   },
+   {
+    "clause": "Ballybrophy – Thurles",
+    "from": "Ballybrophy",
+    "to": "Thurles",
+    "from_codes": [
+     "BBRHY"
+    ],
+    "to_codes": [
+     "THRLS"
+    ],
+    "stations": [
+     "BBRHY",
+     "TPMOR",
+     "THRLS"
+    ],
+    "expansion": "ok",
+    "quote": "Please note that due to Engineering Works between Dublin Heuston to Hazelhatch and between Ballybrophy to Thurles on Friday 25th and Saturday 26th September, the following service alterations and amendments will take place:"
+   }
+  ],
+  "effects": [],
+  "stations": [
+   "HSTON",
+   "CHORC",
+   "CLDKN",
+   "KISHO",
+   "ADMTN",
+   "HZLCH",
+   "BBRHY",
+   "TPMOR",
+   "THRLS"
+  ],
+  "confidence": 1,
+  "extraction": {
+   "status": "done",
+   "extractor": "gemini-3.8-flash/v1",
+   "rejected": 0
+  },
+  "alterations": [
+   {
+    "departs": "07:00",
+    "origin": "Limerick",
+    "destination": "Ballybrophy",
+    "changes": [
+     "retimed"
+    ],
+    "stations": [
+     "Limerick",
+     "Ballybrophy"
+    ],
+    "retimed_to": "07:35",
+    "quote": "07:00 Limerick to Ballybrophy is deferred to 07:35",
+    "origin_codes": [
+     "LMRCK"
+    ],
+    "destination_codes": [
+     "BBRHY"
+    ],
+    "station_codes": [
+     "LMRCK",
+     "BBRHY"
+    ]
+   },
+   {
+    "departs": "17:10",
+    "origin": "Limerick",
+    "destination": "Ballybrophy",
+    "changes": [
+     "retimed"
+    ],
+    "stations": [
+     "Limerick",
+     "Ballybrophy"
+    ],
+    "retimed_to": "17:30",
+    "quote": "17:10 Limerick to Ballybrophy is deferred to 17:30",
+    "origin_codes": [
+     "LMRCK"
+    ],
+    "destination_codes": [
+     "BBRHY"
+    ],
+    "station_codes": [
+     "LMRCK",
+     "BBRHY"
+    ]
+   }
+  ],
+  "detail": "Please note that due to Engineering Works between Dublin Heuston to Hazelhatch and between Ballybrophy to Thurles on Friday 25th and Saturday 26th September, the following service alterations and amendments will take place:\n07:00 Limerick to Ballybrophy is deferred to 07:35\n17:10 Limerick to Ballybrophy is deferred to 17:30\n09:00 Ballybrophy to Limerick is deferred to 10:05\n19:05 Ballybrophy to Limerick is deferred to 19:40\nPlease check the Journey Planner for full details.",
+  "revisions": [
+   {
+    "build": "2026-09-23T14:18:01.681Z",
+    "seen_at": "2026-09-23T14:31:31.146Z",
+    "content_hash": "cab0e4be7df4a810e3ba61a09993c3e3dc46a203805102d24b324f3082b19990",
+    "trim": false,
+    "summary": "first published"
+   }
+  ]
+ },
+ "source": {
+  "built_at": "2026-09-23T14:53:44.417Z",
+  "fetched_at": "2026-09-23T15:28:39.935Z",
+  "checked_at": "2026-09-24T09:21:21.133948218Z",
+  "stale": false
+ }
+}

@@ -1,4 +1,5 @@
 """pyrailworks - Python client for the Public RO Railworks API."""
+from pyrailworks._version import __version__
 from pyrailworks.client import AsyncRailworksClient, RailworksClient
 from pyrailworks.exceptions import (
     BadRequestError,
@@ -10,6 +11,7 @@ from pyrailworks.exceptions import (
 from pyrailworks.models import (
     AlterationChange,
     ChangeEvent,
+    OpenEnum,
     ChangeEventType,
     ChangesResponse,
     DateInference,
@@ -41,6 +43,8 @@ from pyrailworks.models import (
 )
 
 __all__ = [
+    "__version__",
+    "OpenEnum",
     "RailworksClient",
     "AsyncRailworksClient",
     "RailworksError",

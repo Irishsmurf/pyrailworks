@@ -5,6 +5,10 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    # Nightly: catch drift in the live API even when nothing here changes.
+    - cron: "37 5 * * *"
+  workflow_dispatch:
 
 jobs:
   test:
@@ -35,6 +39,9 @@ jobs:
   integration:
     name: Live Integration Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
     - uses: actions/checkout@v4
 
@@ -51,3 +58,14 @@ jobs:
     - name: Run integration tests against live API
       run: |
         pytest -v -m "integration"
+
+    - name: Open an issue when the nightly run finds the live API incompatible
+      if: failure() && github.event_name == 'schedule'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        title="Live Railworks API incompatible with pyrailworks"
+        if [ -z "$(gh issue list --state open --search "$title in:title" --json number --jq '.[].number')" ]; then
+          gh issue create --title "$title" --label needs-triage \
+            --body "The nightly integration run against https://railworks.paddez.com failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        fi

@@ -1,4 +1,6 @@
 """Integration tests running against the live Railworks API (https://railworks.paddez.com)."""
+import os
+
 import pytest
 from datetime import date
 from pyrailworks import (
@@ -8,7 +10,9 @@ from pyrailworks import (
     NoticeStatus,
 )
 
-BASE_URL = "https://railworks.paddez.com"
+# RAILWORKS_BASE_URL points these tests at another instance, e.g. a railworks
+# build under test in the railworks repository's CI.
+BASE_URL = os.environ.get("RAILWORKS_BASE_URL", "https://railworks.paddez.com")
 
 pytestmark = pytest.mark.integration
 

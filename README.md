@@ -58,6 +58,23 @@ async def main():
 asyncio.run(main())
 ```
 
+## Compatibility
+
+The Railworks API only makes additive changes within `/v1`: new fields, endpoints and query parameters, and **new enum values**. pyrailworks is built to keep working through all of them:
+
+- **Unknown fields** are ignored.
+- **Unknown enum values** (a new effect kind, change-event type or status) parse as an `UNKNOWN` member that keeps the raw value, still compares equal to the string, and has `is_known == False`:
+
+  ```python
+  for event in client.iter_changes():
+      if not event.type.is_known:
+          log.info("new event type %s: consider upgrading pyrailworks", event.type.value)
+  ```
+
+- Requests identify the client version (`User-Agent: pyrailworks/<version>`), so the API can see which versions are in use before retiring anything.
+
+A breaking change would ship as `/v2`, alongside `/v1`, with `Deprecation` and `Sunset` headers on what's being retired. The railworks repository runs this package's integration tests against every change to the API, and a nightly job here runs them against the live API and opens an issue if they fail.
+
 ## Features
 
 - **Both Sync & Async**: `RailworksClient` and `AsyncRailworksClient` powered by `httpx`.

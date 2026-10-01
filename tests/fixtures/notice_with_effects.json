@@ -1,0 +1,123 @@
+{
+ "notice": {
+  "id": "7d33651427c9",
+  "service_group": "DART Services",
+  "status": "active",
+  "heading": "Saturday 3rd and Sunday 4th October",
+  "days": [
+   "2026-10-03",
+   "2026-10-04"
+  ],
+  "starts_on": "2026-10-03",
+  "ends_on": "2026-10-04",
+  "until": "2026-10-05",
+  "date_inference": {
+   "method": "weekday",
+   "corrections": [],
+   "conflicts": [],
+   "prose_missing": [],
+   "prose_extra": []
+  },
+  "first_seen": "2026-09-23T14:31:31.146Z",
+  "last_seen": "2026-09-23T14:53:44.417Z",
+  "revision_count": 1,
+  "works_segments": [
+   {
+    "clause": "Dun Laoghaire – Wicklow",
+    "from": "Dun Laoghaire",
+    "to": "Wicklow",
+    "from_codes": [
+     "DLERY"
+    ],
+    "to_codes": [
+     "WLOW"
+    ],
+    "stations": [
+     "DLERY",
+     "SCOVE",
+     "GLGRY",
+     "DLKEY",
+     "KILNY",
+     "SKILL",
+     "WBROK",
+     "BRAY",
+     "GSTNS",
+     "KCOOL",
+     "WLOW"
+    ],
+    "expansion": "ok",
+    "quote": "Due to engineering works between Dun Laoghaire and Wicklow on Saturday 3rd and Sunday 4th October."
+   }
+  ],
+  "effects": [
+   {
+    "kind": "no_service",
+    "from": "Dun Laoghaire",
+    "to": "Greystones",
+    "station_codes": [
+     "DLERY",
+     "GSTNS",
+     "SCOVE",
+     "GLGRY",
+     "DLKEY",
+     "KILNY",
+     "SKILL",
+     "WBROK",
+     "BRAY"
+    ],
+    "quote": "There will be no DART service between Dun Laoghaire and Greystones."
+   },
+   {
+    "kind": "station_closed",
+    "station_codes": [
+     "SCOVE",
+     "GLGRY",
+     "DLKEY",
+     "KILNY",
+     "SKILL",
+     "WBROK",
+     "BRAY",
+     "GSTNS",
+     "KCOOL"
+    ],
+    "quote": "The following DART stations will be closed: Sandycove and Glasthule / Glenagerary / Dalkey / Killiney / Shankill / Woodbrook / Shankill / Bray / Greystones and Kilcoole"
+   }
+  ],
+  "stations": [
+   "DLERY",
+   "SCOVE",
+   "GLGRY",
+   "DLKEY",
+   "KILNY",
+   "SKILL",
+   "WBROK",
+   "BRAY",
+   "GSTNS",
+   "KCOOL",
+   "WLOW"
+  ],
+  "confidence": 1,
+  "extraction": {
+   "status": "done",
+   "extractor": "gemini-3.8-flash/v1",
+   "rejected": 0
+  },
+  "detail": "Due to engineering works between Dun Laoghaire and Wicklow on Saturday 3rd and Sunday 4th October.\nThere will be no DART service between Dun Laoghaire and Greystones. DART services will operate between Malahide / Howth / Dun Laoghaire stations only.\nThe following DART stations will be closed: Sandycove and Glasthule / Glenagerary / Dalkey / Killiney / Shankill / Woodbrook / Shankill / Bray / Greystones and Kilcoole\nThe Leap card used on Iarnród Éireann services can be used on all TFI public transport services in the affected area.",
+  "revisions": [
+   {
+    "build": "2026-09-23T14:18:01.681Z",
+    "seen_at": "2026-09-23T14:31:31.146Z",
+    "content_hash": "2368c0ed8a6e1d05a10345dd098e6127135d98e7b42ee6895c83186ae2bdf1ad",
+    "trim": false,
+    "summary": "first published"
+   }
+  ],
+  "alterations": []
+ },
+ "source": {
+  "built_at": "2026-09-23T14:53:44.417Z",
+  "fetched_at": "2026-09-23T15:28:39.935Z",
+  "checked_at": "2026-09-24T09:21:21.133948218Z",
+  "stale": false
+ }
+}

@@ -13,6 +13,8 @@ from typing import (
 )
 import httpx
 
+from pyrailworks._version import __version__
+
 from pyrailworks.exceptions import (
     BadRequestError,
     NotFoundError,
@@ -110,7 +112,7 @@ class RailworksClient:
     ) -> None:
         self.base_url = base_url.rstrip("/")
         default_headers = {
-            "User-Agent": "pyrailworks/0.1.0",
+            "User-Agent": f"pyrailworks/{__version__}",
             "Accept": "application/json",
         }
         if headers:
@@ -287,7 +289,7 @@ class AsyncRailworksClient:
     ) -> None:
         self.base_url = base_url.rstrip("/")
         default_headers = {
-            "User-Agent": "pyrailworks/0.1.0",
+            "User-Agent": f"pyrailworks/{__version__}",
             "Accept": "application/json",
         }
         if headers:

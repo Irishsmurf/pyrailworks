@@ -2,7 +2,7 @@
 
 pyrailworks follows [Semantic Versioning](https://semver.org/). Before 1.0, a minor version (0.x.0) may change the public API and a patch version (0.x.y) doesn't. Each release is a `vX.Y.Z` tag with a GitHub release, which publishes it to PyPI.
 
-## 0.3.0 (unreleased)
+## 0.3.0 (2026-11-07)
 
 ### Uses the railworks `/v2` API
 

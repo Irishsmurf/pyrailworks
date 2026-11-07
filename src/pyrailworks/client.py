@@ -1,7 +1,9 @@
 """HTTP Client implementation for pyrailworks."""
 from __future__ import annotations
 
-from datetime import date, datetime
+import warnings
+from datetime import date, datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import (
     Any,
     AsyncIterator,
@@ -17,7 +19,9 @@ from typing_extensions import deprecated
 from pyrailworks._version import __version__
 
 from pyrailworks.exceptions import (
+    ApiDeprecationWarning,
     BadRequestError,
+    GoneError,
     NotFoundError,
     ProblemError,
     RailworksError,
@@ -78,6 +82,61 @@ def _format_status(
     return str(status)
 
 
+def _parse_deprecation(value: Optional[str]) -> Optional[datetime]:
+    # RFC 9745: a structured-field Date, "@" and Unix seconds.
+    if not value or not value.startswith("@"):
+        return None
+    try:
+        return datetime.fromtimestamp(int(value[1:]), tz=timezone.utc)
+    except (ValueError, OverflowError, OSError):
+        return None
+
+
+def _parse_sunset(value: Optional[str]) -> Optional[datetime]:
+    # RFC 8594: an HTTP-date.
+    if not value:
+        return None
+    try:
+        return parsedate_to_datetime(value)
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
+def _warn_if_deprecated(response: httpx.Response) -> None:
+    """Warn (ApiDeprecationWarning) when the API marks this route as deprecated."""
+    headers = response.headers
+    if "deprecation" not in headers and "sunset" not in headers:
+        return
+    try:
+        path = response.request.url.path
+    except RuntimeError:  # a response built without a request
+        path = "this route"
+    sunset = _parse_sunset(headers.get("sunset"))
+    successor: Optional[str] = None
+    try:
+        successor = response.links.get("successor-version", {}).get("url")
+    except Exception:  # noqa: BLE001 - a malformed Link header must never break a call
+        successor = None
+    message = f"the Railworks API has deprecated {path}"
+    if sunset is not None:
+        message += f"; it stops working at {sunset.isoformat()}"
+    if successor:
+        message += f"; use {successor.split('?', 1)[0]} instead"
+    message += " (upgrading pyrailworks usually fixes this)"
+    # stacklevel 4: the caller of the public client method
+    # (_warn_if_deprecated <- _get <- client method <- caller).
+    warnings.warn(
+        ApiDeprecationWarning(
+            message,
+            path=path,
+            deprecated_at=_parse_deprecation(headers.get("deprecation")),
+            sunset=sunset,
+            successor=successor,
+        ),
+        stacklevel=4,
+    )
+
+
 def _raw_response(data: Dict[str, Any]) -> RawNoticeResponse:
     return RawNoticeResponse.model_validate(
         {"source": data["source"], "revisions": data["notice"].get("revisions") or []}
@@ -101,6 +160,11 @@ def _handle_error_response(response: httpx.Response) -> None:
                 raise BadRequestError(status=status, title=title, detail=detail, type_=type_)
             if status == 404:
                 raise NotFoundError(status=status, title=title, detail=detail, type_=type_)
+            if status == 410:
+                raise GoneError(
+                    status=status, title=title, detail=detail, type_=type_,
+                    successor=data.get("successor"),
+                )
             if status == 503:
                 raise StationsLoadingError(status=status, title=title, detail=detail, type_=type_)
 
@@ -155,6 +219,7 @@ class RailworksClient:
     def _get(self, path: str, params: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None) -> httpx.Response:
         filtered_params = {k: v for k, v in (params or {}).items() if v is not None}
         resp = self._client.get(path, params=filtered_params, headers=headers)
+        _warn_if_deprecated(resp)
         _handle_error_response(resp)
         return resp
 
@@ -339,6 +404,7 @@ class AsyncRailworksClient:
     ) -> httpx.Response:
         filtered_params = {k: v for k, v in (params or {}).items() if v is not None}
         resp = await self._client.get(path, params=filtered_params, headers=headers)
+        _warn_if_deprecated(resp)
         _handle_error_response(resp)
         return resp
 

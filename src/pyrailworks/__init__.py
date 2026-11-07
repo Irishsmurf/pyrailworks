@@ -2,7 +2,9 @@
 from pyrailworks._version import __version__
 from pyrailworks.client import API_VERSION, AsyncRailworksClient, RailworksClient
 from pyrailworks.exceptions import (
+    ApiDeprecationWarning,
     BadRequestError,
+    GoneError,
     NotFoundError,
     ProblemError,
     RailworksError,
@@ -60,6 +62,8 @@ __all__ = [
     "BadRequestError",
     "NotFoundError",
     "StationsLoadingError",
+    "GoneError",
+    "ApiDeprecationWarning",
     "LineName",
     "NoticeStatus",
     "EffectKind",

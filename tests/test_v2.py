@@ -1,8 +1,9 @@
-"""/v2 models, and the deprecated aliases of fields /v2 dropped.
+"""/v2 models, the deprecated aliases of fields /v2 dropped, and the warnings.
 
 Fixtures are real /v2 responses (from railworks' fixture server)."""
 import json
 import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
@@ -11,7 +12,9 @@ import respx
 
 from pyrailworks import (
     API_VERSION,
+    ApiDeprecationWarning,
     AsyncRailworksClient,
+    GoneError,
     Health,
     NoticeResponse,
     RailworksClient,
@@ -238,3 +241,85 @@ def test_every_call_uses_v2():
                 call()
     assert len(paths) == 8 and all(p.startswith("/v2/") for p in paths), paths
 
+
+# --- the server's Deprecation and Sunset headers ----------------------------
+
+
+def _deprecated_route(**headers):
+    return respx.get(f"{BASE_URL}/v2/health").mock(
+        return_value=httpx.Response(200, headers=headers or V1_HEADERS, json=load("health.json"))
+    )
+
+
+@respx.mock
+def test_deprecation_headers_warn():
+    _deprecated_route()
+    with RailworksClient(base_url=BASE_URL) as client, pytest.warns(ApiDeprecationWarning) as record:
+        client.get_health()
+    w = record[0]
+    assert issubclass(w.category, FutureWarning)  # shown by default, unlike DeprecationWarning
+    assert w.filename == __file__
+    msg = w.message
+    assert msg.path == "/v2/health"
+    assert msg.sunset == datetime(2026, 12, 1, tzinfo=timezone.utc)
+    assert msg.deprecated_at == datetime(2026, 11, 8, tzinfo=timezone.utc)
+    assert msg.successor == "/v2/notices?line=dart"
+    assert "2026-12-01T00:00:00+00:00" in str(msg) and "/v2/notices instead" in str(msg)
+
+
+@respx.mock
+async def test_async_deprecation_headers_warn():
+    _deprecated_route()
+    async with AsyncRailworksClient(base_url=BASE_URL) as client:
+        with pytest.warns(ApiDeprecationWarning) as record:  # noqa: SIM117 - async with and with
+            await client.get_health()
+    assert record[0].filename == __file__
+
+
+@respx.mock
+def test_sunset_alone_warns():
+    _deprecated_route(Sunset="Tue, 01 Dec 2026 00:00:00 GMT")
+    with RailworksClient(base_url=BASE_URL) as client, pytest.warns(ApiDeprecationWarning) as record:
+        client.get_health()
+    assert record[0].message.deprecated_at is None and record[0].message.successor is None
+
+
+@respx.mock
+def test_malformed_deprecation_headers_still_warn_and_never_raise():
+    _deprecated_route(Deprecation="?1", Sunset="soon", Link="<<<not a link")
+    with RailworksClient(base_url=BASE_URL) as client, pytest.warns(ApiDeprecationWarning) as record:
+        health = client.get_health()
+    assert health.source is not None
+    assert record[0].message.sunset is None and record[0].message.deprecated_at is None
+
+
+@respx.mock
+def test_no_deprecation_headers_no_warning():
+    respx.get(f"{BASE_URL}/v2/health").mock(return_value=httpx.Response(200, json=load("health.json")))
+    with RailworksClient(base_url=BASE_URL) as client, warnings.catch_warnings():
+        warnings.simplefilter("error")
+        client.get_health()
+
+
+@respx.mock
+def test_gone_after_the_sunset():
+    respx.get(f"{BASE_URL}/v2/health").mock(
+        return_value=httpx.Response(
+            410,
+            headers={"Content-Type": "application/problem+json", **V1_HEADERS},
+            json={
+                "type": "about:blank",
+                "title": "Gone",
+                "status": 410,
+                "detail": "/v1/health was retired on 1 December 2026",
+                "successor": "/v2/health",
+            },
+        )
+    )
+    with (
+        RailworksClient(base_url=BASE_URL) as client,
+        pytest.warns(ApiDeprecationWarning),
+        pytest.raises(GoneError) as exc_info,
+    ):
+        client.get_health()
+    assert exc_info.value.status == 410 and exc_info.value.successor == "/v2/health"

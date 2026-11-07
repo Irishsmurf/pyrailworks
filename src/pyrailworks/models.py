@@ -5,13 +5,18 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any, List, Optional
 from pydantic import BaseModel, Field
+from typing_extensions import deprecated
+
+# Fields /v2 dropped are kept as deprecated aliases of their successors where
+# there is one (see the CHANGELOG): each warns with DeprecationWarning at the
+# caller's line. Messages are literals so type checkers can report them.
 
 
 class OpenEnum(str, Enum):
     """An enum that accepts values it doesn't know yet.
 
-    The Railworks API only makes additive changes within /v1, and its enum
-    lists are open: a new effect kind or change-event type may appear without
+    The Railworks API only makes additive changes within a version, and its
+    enum lists are open: a new effect kind or change-event type may appear without
     a new API version. An unknown value parses as a pseudo-member named
     ``UNKNOWN`` that keeps the raw value, still compares equal to the string,
     and reports ``is_known`` as False, so a new value never breaks a response.
@@ -90,6 +95,22 @@ class SegmentExpansion(OpenEnum):
     UNRESOLVED = "unresolved"
 
 
+class WithdrawnReason(OpenEnum):
+    LEFT_PAGE = "left_page"
+    GROUP_VANISHED = "group_vanished"
+    MASS_WITHDRAWAL_CONFIRMED = "mass_withdrawal_confirmed"
+
+
+class HeldReason(OpenEnum):
+    GROUP_VANISHED = "group_vanished"
+    MASS_WITHDRAWAL = "mass_withdrawal"
+
+
+class ReviewReason(OpenEnum):
+    NO_WORKS_SEGMENT = "no_works_segment"
+    EMPTY_DETAIL = "empty_detail"
+
+
 class ChangeEventType(OpenEnum):
     CREATED = "created"
     REVISED = "revised"
@@ -119,12 +140,18 @@ class DateInference(BaseModel):
 
 
 class DaySection(BaseModel):
-    heading: str
+    """A Day Section, by its days (/v2 dropped its published heading)."""
+
     days: List[date] = Field(default_factory=list)
 
 
 class WorksSegment(BaseModel):
-    clause: str
+    """A track section where works take place.
+
+    ``from_`` and ``to`` are names from railworks' station list, None when the
+    place isn't known; the codes are always there.
+    """
+
     from_: Optional[str] = Field(None, alias="from")
     to: Optional[str] = None
     from_codes: List[str] = Field(default_factory=list)
@@ -133,7 +160,6 @@ class WorksSegment(BaseModel):
     from_time: Optional[str] = None
     until_time: Optional[str] = None
     expansion: SegmentExpansion
-    quote: str
 
 
 class Effect(BaseModel):
@@ -143,18 +169,17 @@ class Effect(BaseModel):
     station_codes: List[str] = Field(default_factory=list)
     from_time: Optional[str] = None
     until_time: Optional[str] = None
-    quote: str
 
 
 class ServiceAlteration(BaseModel):
+    """A change to one train. ``origin`` and ``destination`` are named from their codes."""
+
     departs: str
     origin: str
     destination: str
     changes: List[AlterationChange] = Field(default_factory=list)
-    stations: List[str] = Field(default_factory=list)
     retimed_to: Optional[str] = None
     bus_departs: Optional[str] = None
-    quote: str
     origin_codes: List[str] = Field(default_factory=list)
     destination_codes: List[str] = Field(default_factory=list)
     station_codes: List[str] = Field(default_factory=list)
@@ -171,15 +196,30 @@ class Revision(BaseModel):
     seen_at: datetime
     content_hash: str
     trim: bool
+    extended: bool = False
     summary: str
-    html: Optional[str] = None
+
+    @property
+    @deprecated("Revision.html is always None: railworks /v2 no longer republishes Iarnród Éireann's text.")
+    def html(self) -> Optional[str]:
+        """Deprecated: always None. /v2 doesn't serve the upstream HTML."""
+        return None
 
 
 class WorksNotice(BaseModel):
+    """A Works Notice, as /v2 publishes it: facts and railworks' own wording.
+
+    ``title`` and ``summary`` are generated from the facts and may be reworded
+    as the generator improves: display them, don't parse them. Use ``days``,
+    ``starts_on`` and ``ends_on`` for dates.
+    """
+
     id: str
     service_group: str
     status: NoticeStatus
-    heading: str
+    withdrawn_reason: Optional[WithdrawnReason] = None
+    title: str
+    summary: List[str] = Field(default_factory=list)
     days: List[date]
     starts_on: date
     ends_on: date
@@ -194,9 +234,20 @@ class WorksNotice(BaseModel):
     confidence: float
     extraction: Extraction
     day_sections: Optional[List[DaySection]] = None
-    detail: Optional[str] = None
     alterations: Optional[List[ServiceAlteration]] = None
     revisions: Optional[List[Revision]] = None
+
+    @property
+    @deprecated("WorksNotice.heading is now WorksNotice.title (railworks /v2 no longer republishes Iarnród Éireann's text).")
+    def heading(self) -> str:
+        """Deprecated alias of ``title``."""
+        return self.title
+
+    @property
+    @deprecated("WorksNotice.detail is now WorksNotice.summary, a list of lines (railworks /v2 no longer republishes Iarnród Éireann's text).")
+    def detail(self) -> Optional[str]:
+        """Deprecated: ``summary``'s lines joined with newlines."""
+        return "\n".join(self.summary)
 
 
 class ChangeEvent(BaseModel):
@@ -206,6 +257,8 @@ class ChangeEvent(BaseModel):
     build: datetime
     at: datetime
     trim: Optional[bool] = None
+    extended: Optional[bool] = None
+    withdrawn_reason: Optional[WithdrawnReason] = None
 
 
 class StationLine(BaseModel):
@@ -241,13 +294,30 @@ class StationDay(BaseModel):
 
 
 class NoticeRef(BaseModel):
+    """A notice named in Health, by its generated ``title``."""
+
     id: str
     service_group: str
-    heading: str
+    title: str
+
+    @property
+    @deprecated("NoticeRef.heading is now NoticeRef.title (railworks /v2 no longer republishes Iarnród Éireann's text).")
+    def heading(self) -> str:
+        """Deprecated alias of ``title``."""
+        return self.title
+
+
+class HeldNoticeRef(NoticeRef):
+    reason: Optional[HeldReason] = None
 
 
 class LowConfidenceNoticeRef(NoticeRef):
     confidence: Optional[float] = None
+
+
+class NeedsReviewNoticeRef(NoticeRef):
+    confidence: float
+    reasons: List[ReviewReason] = Field(default_factory=list)
 
 
 class LastFailure(BaseModel):
@@ -265,10 +335,13 @@ class HealthExtraction(BaseModel):
 class Health(BaseModel):
     source: Source
     last_failure: Optional[LastFailure] = None
-    held_notices: List[NoticeRef] = Field(default_factory=list)
+    held_notices: List[HeldNoticeRef] = Field(default_factory=list)
     graph_removals: List[List[str]] = Field(default_factory=list)
     unmapped_groups: List[str] = Field(default_factory=list)
     low_confidence: List[LowConfidenceNoticeRef] = Field(default_factory=list)
+    needs_review: List[NeedsReviewNoticeRef] = Field(default_factory=list)
+    empty_detail: int = 0
+    no_stations: int = 0
     unresolved_names: List[dict[str, Any]] = Field(default_factory=list)
     extraction: HealthExtraction
 
@@ -285,6 +358,8 @@ class NoticeResponse(BaseModel):
 
 
 class RawNoticeResponse(BaseModel):
+    """What the deprecated ``get_notice_raw()`` returns: a notice's revisions (no HTML)."""
+
     source: Source
     revisions: List[Revision]
 

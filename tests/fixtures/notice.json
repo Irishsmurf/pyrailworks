@@ -3,7 +3,13 @@
   "id": "ae7b08551ff1",
   "service_group": "Ballybrophy Services",
   "status": "active",
-  "heading": "Friday 25th and Saturday 26th September",
+  "title": "Ballybrophy: works Dublin Heuston–Hazelhatch, Ballybrophy–Thurles · Fri 25–Sat 26 Sep",
+  "summary": [
+   "Days: Fri 25–Sat 26 Sep",
+   "Works: Dublin Heuston–Hazelhatch, Ballybrophy–Thurles",
+   "Trains affected: 4",
+   "Retimed (4): 07:00 Limerick–Ballybrophy (now 07:35); 17:10 Limerick–Ballybrophy (now 17:30); 09:00 Ballybrophy–Limerick (now 10:05); and 1 more"
+  ],
   "days": [
    "2026-09-25",
    "2026-09-26"
@@ -18,12 +24,11 @@
    "prose_missing": [],
    "prose_extra": []
   },
-  "first_seen": "2026-09-23T14:31:31.146Z",
-  "last_seen": "2026-09-23T14:53:44.417Z",
+  "first_seen": "2026-09-23T11:34:17Z",
+  "last_seen": "2026-09-23T11:14:13.844Z",
   "revision_count": 1,
   "works_segments": [
    {
-    "clause": "Dublin Heuston – Hazelhatch",
     "from": "Dublin Heuston",
     "to": "Hazelhatch",
     "from_codes": [
@@ -40,11 +45,9 @@
      "ADMTN",
      "HZLCH"
     ],
-    "expansion": "ok",
-    "quote": "Please note that due to Engineering Works between Dublin Heuston to Hazelhatch and between Ballybrophy to Thurles on Friday 25th and Saturday 26th September, the following service alterations and amendments will take place:"
+    "expansion": "ok"
    },
    {
-    "clause": "Ballybrophy – Thurles",
     "from": "Ballybrophy",
     "to": "Thurles",
     "from_codes": [
@@ -58,8 +61,7 @@
      "TPMOR",
      "THRLS"
     ],
-    "expansion": "ok",
-    "quote": "Please note that due to Engineering Works between Dublin Heuston to Hazelhatch and between Ballybrophy to Thurles on Friday 25th and Saturday 26th September, the following service alterations and amendments will take place:"
+    "expansion": "ok"
    }
   ],
   "effects": [],
@@ -88,12 +90,7 @@
     "changes": [
      "retimed"
     ],
-    "stations": [
-     "Limerick",
-     "Ballybrophy"
-    ],
     "retimed_to": "07:35",
-    "quote": "07:00 Limerick to Ballybrophy is deferred to 07:35",
     "origin_codes": [
      "LMRCK"
     ],
@@ -112,12 +109,7 @@
     "changes": [
      "retimed"
     ],
-    "stations": [
-     "Limerick",
-     "Ballybrophy"
-    ],
     "retimed_to": "17:30",
-    "quote": "17:10 Limerick to Ballybrophy is deferred to 17:30",
     "origin_codes": [
      "LMRCK"
     ],
@@ -128,23 +120,62 @@
      "LMRCK",
      "BBRHY"
     ]
+   },
+   {
+    "departs": "09:00",
+    "origin": "Ballybrophy",
+    "destination": "Limerick",
+    "changes": [
+     "retimed"
+    ],
+    "retimed_to": "10:05",
+    "origin_codes": [
+     "BBRHY"
+    ],
+    "destination_codes": [
+     "LMRCK"
+    ],
+    "station_codes": [
+     "BBRHY",
+     "LMRCK"
+    ]
+   },
+   {
+    "departs": "19:05",
+    "origin": "Ballybrophy",
+    "destination": "Limerick",
+    "changes": [
+     "retimed"
+    ],
+    "retimed_to": "19:40",
+    "origin_codes": [
+     "BBRHY"
+    ],
+    "destination_codes": [
+     "LMRCK"
+    ],
+    "station_codes": [
+     "BBRHY",
+     "LMRCK"
+    ]
    }
   ],
-  "detail": "Please note that due to Engineering Works between Dublin Heuston to Hazelhatch and between Ballybrophy to Thurles on Friday 25th and Saturday 26th September, the following service alterations and amendments will take place:\n07:00 Limerick to Ballybrophy is deferred to 07:35\n17:10 Limerick to Ballybrophy is deferred to 17:30\n09:00 Ballybrophy to Limerick is deferred to 10:05\n19:05 Ballybrophy to Limerick is deferred to 19:40\nPlease check the Journey Planner for full details.",
+  "day_sections": [],
   "revisions": [
    {
-    "build": "2026-09-23T14:18:01.681Z",
-    "seen_at": "2026-09-23T14:31:31.146Z",
+    "build": "2026-09-23T11:14:13.844Z",
+    "seen_at": "2026-09-23T11:34:17Z",
     "content_hash": "cab0e4be7df4a810e3ba61a09993c3e3dc46a203805102d24b324f3082b19990",
     "trim": false,
+    "extended": false,
     "summary": "first published"
    }
   ]
  },
  "source": {
-  "built_at": "2026-09-23T14:53:44.417Z",
-  "fetched_at": "2026-09-23T15:28:39.935Z",
-  "checked_at": "2026-09-24T09:21:21.133948218Z",
+  "built_at": "2026-09-23T11:14:13.844Z",
+  "fetched_at": "2026-09-23T11:34:17Z",
+  "checked_at": "2026-09-23T11:34:17Z",
   "stale": false
  }
 }

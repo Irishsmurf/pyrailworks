@@ -1,4 +1,5 @@
-"""Exception classes for pyrailworks."""
+"""Exception and warning classes for pyrailworks."""
+from datetime import datetime
 from typing import Optional
 
 
@@ -33,3 +34,46 @@ class NotFoundError(ProblemError):
 
 class StationsLoadingError(ProblemError):
     """503 Service Unavailable: station list hasn't loaded yet."""
+
+
+class GoneError(ProblemError):
+    """410 Gone: a retired route (e.g. a /v1 route after its Sunset).
+
+    ``successor`` is the URL the API says to use instead, when it names one.
+    """
+
+    def __init__(
+        self,
+        status: int,
+        title: str,
+        detail: str,
+        type_: Optional[str] = None,
+        successor: Optional[str] = None,
+    ) -> None:
+        self.successor = successor
+        super().__init__(status=status, title=title, detail=detail, type_=type_)
+
+
+class ApiDeprecationWarning(FutureWarning):
+    """The API marked a route this client called as deprecated.
+
+    Raised as a warning (never an exception) when a response carries a
+    ``Deprecation`` (RFC 9745) or ``Sunset`` (RFC 8594) header. It's a
+    ``FutureWarning``, so Python shows it by default: the route will stop
+    working on ``sunset``, which usually means upgrading pyrailworks.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        path: str,
+        deprecated_at: Optional[datetime] = None,
+        sunset: Optional[datetime] = None,
+        successor: Optional[str] = None,
+    ) -> None:
+        super().__init__(message)
+        self.path = path
+        self.deprecated_at = deprecated_at
+        self.sunset = sunset
+        self.successor = successor

@@ -1,4 +1,4 @@
-"""Forward compatibility: the railworks API promises additive changes only in /v1,
+"""Forward compatibility: the railworks API promises additive changes only within a version,
 and its enum lists are open, so a value this version doesn't know yet must never
 stop a response from parsing. Fixtures are real API responses."""
 import copy
@@ -77,7 +77,7 @@ def test_iter_changes_survives_a_new_event_type():
     page = load("changes.json")
     page["events"][0]["type"] = "rescheduled"
     last = page["next"]
-    respx.get(f"{BASE_URL}/v1/changes").mock(
+    respx.get(f"{BASE_URL}/v2/changes").mock(
         side_effect=lambda request: httpx.Response(
             200, json=page if "after" not in request.url.params else {**page, "events": [], "next": last}
         )
@@ -96,7 +96,7 @@ def test_new_fields_are_ignored():
 
 @respx.mock
 def test_user_agent_names_this_version():
-    route = respx.get(f"{BASE_URL}/v1/health").mock(return_value=httpx.Response(200, json={}))
+    route = respx.get(f"{BASE_URL}/v2/health").mock(return_value=httpx.Response(200, json={}))
     with RailworksClient(base_url=BASE_URL) as client:
         try:
             client.get_health()

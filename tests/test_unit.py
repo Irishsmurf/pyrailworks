@@ -30,7 +30,7 @@ async def async_client():
 
 @respx.mock
 def test_error_bad_request_parsing(sync_client):
-    respx.get(f"{BASE_URL}/v1/notices?unknown_param=1").mock(
+    respx.get(f"{BASE_URL}/v2/notices?unknown_param=1").mock(
         return_value=httpx.Response(
             400,
             headers={"Content-Type": "application/problem+json"},
@@ -44,7 +44,7 @@ def test_error_bad_request_parsing(sync_client):
     )
 
     with pytest.raises(BadRequestError) as exc_info:
-        sync_client._get("/v1/notices", params={"unknown_param": "1"})
+        sync_client._get("/v2/notices", params={"unknown_param": "1"})
 
     assert exc_info.value.status == 400
     assert "unknown query parameter" in exc_info.value.detail
@@ -53,7 +53,7 @@ def test_error_bad_request_parsing(sync_client):
 
 @respx.mock
 def test_error_not_found_parsing(sync_client):
-    respx.get(f"{BASE_URL}/v1/notices/nonexistent").mock(
+    respx.get(f"{BASE_URL}/v2/notices/nonexistent").mock(
         return_value=httpx.Response(
             404,
             headers={"Content-Type": "application/problem+json"},
@@ -74,7 +74,7 @@ def test_error_not_found_parsing(sync_client):
 
 @respx.mock
 def test_error_stations_loading_parsing(sync_client):
-    respx.get(f"{BASE_URL}/v1/stations/WBROK").mock(
+    respx.get(f"{BASE_URL}/v2/stations/WBROK").mock(
         return_value=httpx.Response(
             503,
             headers={"Content-Type": "application/problem+json"},
@@ -94,7 +94,7 @@ def test_error_stations_loading_parsing(sync_client):
 
 @respx.mock
 def test_iter_changes_pagination(sync_client):
-    respx.get(f"{BASE_URL}/v1/changes?limit=2").mock(
+    respx.get(f"{BASE_URL}/v2/changes?limit=2").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -124,7 +124,7 @@ def test_iter_changes_pagination(sync_client):
             },
         )
     )
-    respx.get(f"{BASE_URL}/v1/changes?after=2&limit=2").mock(
+    respx.get(f"{BASE_URL}/v2/changes?after=2&limit=2").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -149,7 +149,7 @@ def test_iter_changes_pagination(sync_client):
 @respx.mock
 @pytest.mark.asyncio
 async def test_async_iter_changes_pagination(async_client):
-    respx.get(f"{BASE_URL}/v1/changes?limit=1").mock(
+    respx.get(f"{BASE_URL}/v2/changes?limit=1").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -172,7 +172,7 @@ async def test_async_iter_changes_pagination(async_client):
             },
         )
     )
-    respx.get(f"{BASE_URL}/v1/changes?after=10&limit=1").mock(
+    respx.get(f"{BASE_URL}/v2/changes?after=10&limit=1").mock(
         return_value=httpx.Response(
             200,
             json={

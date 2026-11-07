@@ -1,0 +1,42 @@
+{
+ "empty_detail": 0,
+ "extraction": {
+  "extractor": "gemini-3.8-flash/v1",
+  "failed": 0,
+  "last_error": "",
+  "pending": 0
+ },
+ "graph_removals": [],
+ "held_notices": [],
+ "last_failure": null,
+ "low_confidence": [],
+ "needs_review": [
+  {
+   "confidence": 0.5,
+   "id": "1331ede10c2a",
+   "reasons": [
+    "no_works_segment"
+   ],
+   "service_group": "Cork, Limerick and Tralee Services",
+   "title": "Cork, Limerick and Tralee: 29 trains altered · Sat 3–Sun 4 Oct"
+  },
+  {
+   "confidence": 0.5,
+   "id": "4350a74ae533",
+   "reasons": [
+    "no_works_segment"
+   ],
+   "service_group": "DART Services",
+   "title": "DART: 4 stations closed · Sat 26–Sun 27 Sep"
+  }
+ ],
+ "no_stations": 1,
+ "source": {
+  "built_at": "2026-09-23T11:14:13.844Z",
+  "fetched_at": "2026-09-23T11:34:17Z",
+  "checked_at": "2026-09-23T11:34:17Z",
+  "stale": false
+ },
+ "unmapped_groups": [],
+ "unresolved_names": []
+}

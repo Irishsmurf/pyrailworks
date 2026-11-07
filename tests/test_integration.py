@@ -70,9 +70,12 @@ def test_live_notices(sync_client):
         assert full_notice.id == notice.id
         assert full_notice.service_group is not None
 
-        raw_resp = sync_client.get_notice_raw(notice.id)
+        assert full_notice.title
+
+        # Deprecated: the revision history, without the HTML /v2 doesn't serve.
+        with pytest.warns(DeprecationWarning):
+            raw_resp = sync_client.get_notice_raw(notice.id)
         assert len(raw_resp.revisions) > 0
-        assert raw_resp.revisions[0].html is not None
 
 
 def test_live_calendar_feed(sync_client):

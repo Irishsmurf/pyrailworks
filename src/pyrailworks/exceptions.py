@@ -33,3 +33,4 @@ class NotFoundError(ProblemError):
 
 class StationsLoadingError(ProblemError):
     """503 Service Unavailable: station list hasn't loaded yet."""
+

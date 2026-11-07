@@ -12,6 +12,7 @@ from typing import (
     Union,
 )
 import httpx
+from typing_extensions import deprecated
 
 from pyrailworks._version import __version__
 
@@ -40,6 +41,11 @@ from pyrailworks.models import (
 )
 
 DEFAULT_BASE_URL = "https://railworks.paddez.com"
+
+# The API version every request uses. /v1's notice and health routes are
+# retired at 2026-12-01T00:00:00Z; pyrailworks 0.2.x is the /v1 client.
+API_VERSION = "v2"
+_API = f"/{API_VERSION}"
 
 
 def _format_date(val: Union[date, str, None]) -> Optional[str]:
@@ -70,6 +76,12 @@ def _format_status(
     if isinstance(status, NoticeStatus):
         return status.value
     return str(status)
+
+
+def _raw_response(data: Dict[str, Any]) -> RawNoticeResponse:
+    return RawNoticeResponse.model_validate(
+        {"source": data["source"], "revisions": data["notice"].get("revisions") or []}
+    )
 
 
 def _handle_error_response(response: httpx.Response) -> None:
@@ -148,7 +160,7 @@ class RailworksClient:
 
     def get_health(self) -> Health:
         """Get health status, freshness and backend diagnostics."""
-        resp = self._get("/v1/health")
+        resp = self._get(f"{_API}/health")
         return Health.model_validate(resp.json())
 
     def list_notices(
@@ -172,19 +184,24 @@ class RailworksClient:
             "group": group,
             "min_confidence": min_confidence,
         }
-        resp = self._get("/v1/notices", params=params)
+        resp = self._get(f"{_API}/notices", params=params)
         return NoticesResponse.model_validate(resp.json())
 
     def get_notice(self, notice_id: str) -> WorksNotice:
-        """Get a full Works Notice by id with revisions, day sections and alterations."""
-        resp = self._get(f"/v1/notices/{notice_id}")
+        """Get a full Works Notice by id with revisions, Day Sections and Service Alterations."""
+        resp = self._get(f"{_API}/notices/{notice_id}")
         data = resp.json()
         return WorksNotice.model_validate(data["notice"])
 
+    @deprecated(
+        "get_notice_raw() is deprecated: railworks /v2 doesn't serve the upstream HTML, "
+        "so it returns the revision history from get_notice() with html=None. "
+        "Use get_notice(id).revisions instead."
+    )
     def get_notice_raw(self, notice_id: str) -> RawNoticeResponse:
-        """Get verbatim upstream HTML for all revisions of a notice."""
-        resp = self._get(f"/v1/notices/{notice_id}/raw")
-        return RawNoticeResponse.model_validate(resp.json())
+        """Deprecated: a notice's revisions, without HTML. Use ``get_notice(id).revisions``."""
+        resp = self._get(f"{_API}/notices/{notice_id}")
+        return _raw_response(resp.json())
 
     def list_changes(
         self,
@@ -199,7 +216,7 @@ class RailworksClient:
             "since": _format_datetime(since),
             "limit": limit,
         }
-        resp = self._get("/v1/changes", params=params)
+        resp = self._get(f"{_API}/changes", params=params)
         return ChangesResponse.model_validate(resp.json())
 
     def iter_changes(
@@ -226,13 +243,13 @@ class RailworksClient:
 
     def list_stations(self) -> List[Station]:
         """List all Irish Rail stations served by timetabled trains."""
-        resp = self._get("/v1/stations")
+        resp = self._get(f"{_API}/stations")
         data = resp.json()
         return StationsResponse.model_validate(data).stations
 
     def get_station(self, code: str) -> Station:
         """Get details for a single station by code."""
-        resp = self._get(f"/v1/stations/{code}")
+        resp = self._get(f"{_API}/stations/{code}")
         data = resp.json()
         return StationResponse.model_validate(data).station
 
@@ -248,7 +265,7 @@ class RailworksClient:
             "from": _format_date(from_date),
             "to": _format_date(to_date),
         }
-        resp = self._get(f"/v1/stations/{code}/days", params=params)
+        resp = self._get(f"{_API}/stations/{code}/days", params=params)
         return StationDaysResponse.model_validate(resp.json())
 
     def get_calendar_feed(
@@ -269,7 +286,7 @@ class RailworksClient:
             "min_confidence": min_confidence,
         }
         resp = self._get(
-            "/v1/feeds/notices.ics",
+            f"{_API}/feeds/notices.ics",
             params=params,
             headers={"Accept": "text/calendar, text/plain"},
         )
@@ -327,7 +344,7 @@ class AsyncRailworksClient:
 
     async def get_health(self) -> Health:
         """Get health status, freshness and backend diagnostics."""
-        resp = await self._get("/v1/health")
+        resp = await self._get(f"{_API}/health")
         return Health.model_validate(resp.json())
 
     async def list_notices(
@@ -351,19 +368,24 @@ class AsyncRailworksClient:
             "group": group,
             "min_confidence": min_confidence,
         }
-        resp = await self._get("/v1/notices", params=params)
+        resp = await self._get(f"{_API}/notices", params=params)
         return NoticesResponse.model_validate(resp.json())
 
     async def get_notice(self, notice_id: str) -> WorksNotice:
-        """Get a full Works Notice by id with revisions, day sections and alterations."""
-        resp = await self._get(f"/v1/notices/{notice_id}")
+        """Get a full Works Notice by id with revisions, Day Sections and Service Alterations."""
+        resp = await self._get(f"{_API}/notices/{notice_id}")
         data = resp.json()
         return WorksNotice.model_validate(data["notice"])
 
+    @deprecated(
+        "get_notice_raw() is deprecated: railworks /v2 doesn't serve the upstream HTML, "
+        "so it returns the revision history from get_notice() with html=None. "
+        "Use get_notice(id).revisions instead."
+    )
     async def get_notice_raw(self, notice_id: str) -> RawNoticeResponse:
-        """Get verbatim upstream HTML for all revisions of a notice."""
-        resp = await self._get(f"/v1/notices/{notice_id}/raw")
-        return RawNoticeResponse.model_validate(resp.json())
+        """Deprecated: a notice's revisions, without HTML. Use ``(await get_notice(id)).revisions``."""
+        resp = await self._get(f"{_API}/notices/{notice_id}")
+        return _raw_response(resp.json())
 
     async def list_changes(
         self,
@@ -378,7 +400,7 @@ class AsyncRailworksClient:
             "since": _format_datetime(since),
             "limit": limit,
         }
-        resp = await self._get("/v1/changes", params=params)
+        resp = await self._get(f"{_API}/changes", params=params)
         return ChangesResponse.model_validate(resp.json())
 
     async def iter_changes(
@@ -405,13 +427,13 @@ class AsyncRailworksClient:
 
     async def list_stations(self) -> List[Station]:
         """List all Irish Rail stations served by timetabled trains."""
-        resp = await self._get("/v1/stations")
+        resp = await self._get(f"{_API}/stations")
         data = resp.json()
         return StationsResponse.model_validate(data).stations
 
     async def get_station(self, code: str) -> Station:
         """Get details for a single station by code."""
-        resp = await self._get(f"/v1/stations/{code}")
+        resp = await self._get(f"{_API}/stations/{code}")
         data = resp.json()
         return StationResponse.model_validate(data).station
 
@@ -427,7 +449,7 @@ class AsyncRailworksClient:
             "from": _format_date(from_date),
             "to": _format_date(to_date),
         }
-        resp = await self._get(f"/v1/stations/{code}/days", params=params)
+        resp = await self._get(f"{_API}/stations/{code}/days", params=params)
         return StationDaysResponse.model_validate(resp.json())
 
     async def get_calendar_feed(
@@ -448,7 +470,7 @@ class AsyncRailworksClient:
             "min_confidence": min_confidence,
         }
         resp = await self._get(
-            "/v1/feeds/notices.ics",
+            f"{_API}/feeds/notices.ics",
             params=params,
             headers={"Accept": "text/calendar, text/plain"},
         )

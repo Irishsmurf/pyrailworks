@@ -1,6 +1,6 @@
 """pyrailworks - Python client for the Public RO Railworks API."""
 from pyrailworks._version import __version__
-from pyrailworks.client import AsyncRailworksClient, RailworksClient
+from pyrailworks.client import API_VERSION, AsyncRailworksClient, RailworksClient
 from pyrailworks.exceptions import (
     BadRequestError,
     NotFoundError,
@@ -22,11 +22,17 @@ from pyrailworks.models import (
     Extraction,
     ExtractionStatus,
     Health,
+    HeldNoticeRef,
+    HeldReason,
     LineName,
+    LowConfidenceNoticeRef,
+    NeedsReviewNoticeRef,
+    NoticeRef,
     NoticeResponse,
     NoticeStatus,
     NoticesResponse,
     RawNoticeResponse,
+    ReviewReason,
     Revision,
     SegmentExpansion,
     ServiceAlteration,
@@ -38,12 +44,14 @@ from pyrailworks.models import (
     StationResponse,
     StationsResponse,
     TimeScope,
+    WithdrawnReason,
     WorksNotice,
     WorksSegment,
 )
 
 __all__ = [
     "__version__",
+    "API_VERSION",
     "OpenEnum",
     "RailworksClient",
     "AsyncRailworksClient",
@@ -60,6 +68,9 @@ __all__ = [
     "DateInferenceMethod",
     "SegmentExpansion",
     "ChangeEventType",
+    "WithdrawnReason",
+    "HeldReason",
+    "ReviewReason",
     "Source",
     "DateInference",
     "DaySection",
@@ -75,6 +86,10 @@ __all__ = [
     "TimeScope",
     "StationDay",
     "Health",
+    "NoticeRef",
+    "HeldNoticeRef",
+    "LowConfidenceNoticeRef",
+    "NeedsReviewNoticeRef",
     "NoticesResponse",
     "NoticeResponse",
     "RawNoticeResponse",
